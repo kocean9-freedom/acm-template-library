@@ -1,11 +1,27 @@
 # 小技巧与快捷函数
 
-## 最值得放进个人骨架的函数
+这些内容比“再背一个大算法”更常直接减少罚时。只把真正会反复使用的函数放进个人骨架。
+
+## 1. 推荐基础定义
 
 ```cpp
+#include <bits/stdc++.h>
+using namespace std;
+
 using ll = long long;
 using i128 = __int128_t;
+using pii = pair<int, int>;
+using pll = pair<ll, ll>;
 
+const int INF = 0x3f3f3f3f;
+const ll LINF = 4e18;
+```
+
+不要无条件 `#define int long long`：它会改变容器内存、函数重载和 `main` 类型。真正可能溢出的量单独用 `long long`。
+
+## 2. `chmin` / `chmax`
+
+```cpp
 template<class T>
 bool chmin(T &a, const T &b) {
     if (b < a) return a = b, true;
@@ -17,8 +33,15 @@ bool chmax(T &a, const T &b) {
     if (a < b) return a = b, true;
     return false;
 }
+```
 
-// b > 0；C++ 的整数除法向 0 取整，这两个函数是数学取整。
+返回值表示是否真的发生松弛，可直接用于队列入队、记录前驱或提前停止。
+
+## 3. 数学意义的整除取整
+
+C++ 整数除法向 0 取整，不等于负数上的 floor：
+
+```cpp
 ll floor_div(ll a, ll b) {
     assert(b > 0);
     ll q = a / b, r = a % b;
@@ -30,34 +53,26 @@ ll ceil_div(ll a, ll b) {
     ll q = a / b, r = a % b;
     return q + (r > 0);
 }
+```
 
+只处理非负整数时，`ceil(a / b)` 可写成 `a / b + (a % b != 0)`，比 `(a+b-1)/b` 更不容易加法溢出。
+
+## 4. 安全整数开方
+
+```cpp
 ll isqrt(ll x) {
     ll r = sqrtl((long double)x);
     while ((i128)(r + 1) * (r + 1) <= x) ++r;
     while ((i128)r * r > x) --r;
     return r;
 }
-
-ll norm(ll x, ll mod) { return (x % mod + mod) % mod; }
 ```
 
-`chmin/chmax` 的返回值能直接表示是否发生松弛。整数开方必须在浮点答案附近校正。
+浮点只负责给近似值，最后必须在整数域校正。
 
-## `__int128` 输入输出
+## 5. `__int128` 输出
 
 ```cpp
-using i128 = __int128_t;
-
-i128 read_i128() {
-    string s;
-    cin >> s;
-    int i = 0, sign = 1;
-    if (s[0] == '-') sign = -1, i = 1;
-    i128 x = 0;
-    for (; i < (int)s.size(); ++i) x = x * 10 + s[i] - '0';
-    return x * sign;
-}
-
 void print_i128(i128 x) {
     if (x < 0) cout << '-', x = -x;
     if (x >= 10) print_i128(x / 10);
@@ -65,9 +80,35 @@ void print_i128(i128 x) {
 }
 ```
 
-触发条件：两个 `long long` 相乘、坐标叉积、模乘或答案可能超过 `9e18`。
+触发场景：两个 `long long` 相乘、坐标叉积、CRT 合并模数、直线代入和可能超过 `9e18` 的答案。
 
-## STL 速查
+## 6. 二分只保留两种写法
+
+找第一个满足 `check(x)` 的整数：
+
+```cpp
+ll l = low, r = high;
+while (l < r) {
+    ll mid = l + (r - l) / 2;
+    if (check(mid)) r = mid;
+    else l = mid + 1;
+}
+```
+
+找最后一个满足 `check(x)` 的整数：
+
+```cpp
+ll l = low, r = high;
+while (l < r) {
+    ll mid = l + (r - l + 1) / 2;
+    if (check(mid)) l = mid;
+    else r = mid - 1;
+}
+```
+
+不要临场混用开区间/闭区间版本。先写清 `check` 的真假分界和无解时返回什么。
+
+## 7. STL 边界速查
 
 ```cpp
 sort(a.begin(), a.end());
@@ -81,17 +122,28 @@ priority_queue<int> big;
 priority_queue<int, vector<int>, greater<int>> small;
 ```
 
-`lower_bound` 依赖区间有序。离散值若交给树状数组，排名必须从 1 开始。
+`lower_bound` 依赖有序区间。离散化后交给 Fenwick 时通常再 `+1`，因为树状数组下标不能为 0。
 
-## 位运算速查
+## 8. 自定义排序别写减法
+
+```cpp
+sort(a.begin(), a.end(), [](const Node &x, const Node &y) {
+    if (x.key != y.key) return x.key < y.key;
+    return x.id < y.id;
+});
+```
+
+不要写 `return x.key - y.key < 0`，差值本身可能溢出。比较器必须满足严格弱序，不能写 `<=`。
+
+## 9. 位运算
 
 ```cpp
 int lowbit(int x) { return x & -x; }
 
 __builtin_popcount(x);
 __builtin_popcountll(x);
-__builtin_ctz(x); // x 必须非 0
-__builtin_clz(x); // x 必须非 0
+__builtin_ctzll(x); // x 必须非 0
+__builtin_clzll(x); // x 必须非 0
 
 bool has = mask >> k & 1;
 mask |= 1LL << k;
@@ -99,33 +151,72 @@ mask &= ~(1LL << k);
 mask ^= 1LL << k;
 
 for (int sub = mask; sub; sub = (sub - 1) & mask) {
-    // 枚举 mask 的所有非空子集
+    // mask 的所有非空子集
 }
 ```
 
-`1 << k` 的 1 是 `int`，当 `k >= 31` 时必须写 `1LL << k`。
+`1 << k` 的 1 是 32 位 `int`；`k >= 31` 时必须写 `1LL << k`。空子集要单独处理。
 
-## 背包循环方向
+## 10. 背包循环方向
 
 ```cpp
-// 0/1 背包：倒序，同一件物品只能使用一次。
+// 0/1 背包：同一件物品只能用一次，容量倒序。
 for (int j = V; j >= w; --j) chmax(f[j], f[j - w] + val);
 
-// 完全背包：正序，允许重复使用。
+// 完全背包：允许重复使用，容量正序。
 for (int j = w; j <= V; ++j) chmax(f[j], f[j - w] + val);
 ```
 
-## 图论建图习惯
+如果状态是“恰好装满”，除 `f[0]=0` 外应初始化为负无穷；如果是“不超过容量”，通常初始化为 0。
 
-- 无向边要加两次；网络流反向边的初始容量通常是 0。
-- Floyd 读重边必须取最小；邻接表最短路可以自然松弛重边。
-- 距离数组用 `long long`，判断不是 `INF` 后再相加。
-- 需要输出路径时，在松弛成功的分支同步记录 `pre[y]=x`。
-- 深度可能达到 `2e5` 时，递归 DFS 有爆栈风险，可改成显式栈。
+## 11. 递归 Lambda
 
-## 懒标记先写复合表
+```cpp
+auto dfs = [&](auto &&self, int x, int fa) -> void {
+    for (int y : e[x]) {
+        if (y == fa) continue;
+        self(self, y, x);
+    }
+};
+dfs(dfs, 1, 0);
+```
 
-复杂线段树动手前，先写新操作如何作用于旧标记。01 序列的规则是：
+适合只在 `solve()` 内使用的小 DFS。需要互相递归或函数很长时，普通函数更清晰。
+
+## 12. 随机数与防卡哈希
+
+```cpp
+mt19937_64 rng(chrono::steady_clock::now().time_since_epoch().count());
+
+struct custom_hash {
+    static uint64_t splitmix64(uint64_t x) {
+        x += 0x9e3779b97f4a7c15ULL;
+        x = (x ^ (x >> 30)) * 0xbf58476d1ce4e5b9ULL;
+        x = (x ^ (x >> 27)) * 0x94d049bb133111ebULL;
+        return x ^ (x >> 31);
+    }
+    size_t operator()(uint64_t x) const {
+        static const uint64_t seed =
+            chrono::steady_clock::now().time_since_epoch().count();
+        return splitmix64(x + seed);
+    }
+};
+```
+
+本地随机对拍要固定 seed，方便复现；比赛中防恶意哈希才使用时间 seed。
+
+## 13. 图论建图纪律
+
+- 无向边加两次；网络流反向边初始容量通常为 0。
+- Floyd 读重边取最小，`k` 放最外层。
+- Dijkstra 不能有负边；0-1 BFS 只允许 0/1 权。
+- 需要输出路径时，每次松弛成功同步记录 `pre[y]=x`。
+- Tarjan 处理无向重边时使用边编号，不只判断 `y != parent`。
+- 多测题要清空邻接表、时间戳、访问数组和节点池指针。
+
+## 14. 懒标记先写复合表
+
+01 序列的赋值与翻转：
 
 | 旧标记 | 新 `set(v)` | 新 `reverse` |
 |---|---|---|
@@ -133,9 +224,9 @@ for (int j = w; j <= V; ++j) chmax(f[j], f[j - w] + val);
 | `set(old)` | `set(v)` | `set(old xor 1)` |
 | `reverse` | `set(v)` | 两次翻转抵消 |
 
-始终区分：`apply` 修改当前节点信息与标记，`down` 把标记传给孩子，`up` 只从孩子合并。
+始终区分：`apply` 改当前节点和标记，`down` 传给孩子，`up` 只从孩子合并。
 
-## 调试宏
+## 15. 调试宏
 
 ```cpp
 #ifdef LOCAL
@@ -145,30 +236,39 @@ for (int j = w; j <= V; ++j) chmax(f[j], f[j - w] + val);
 #endif
 ```
 
-本地使用 `-DLOCAL` 编译。调试信息写 `cerr`，不要污染标准输出。
+本地用 `-DLOCAL` 编译，调试信息写 `cerr`。提交前不要靠手删调试输出，交给宏控制。
 
-## 随机对拍最小流程
+## 16. 推荐本地编译参数
 
-1. 写一个只支持小数据的暴力解法。
-2. 固定随机种子，生成几百组边界和随机数据。
-3. 同一输入分别运行暴力与正解，比较输出。
-4. 出错时打印完整输入，先固定为回归样例，再改正解。
+```bash
+g++ -std=c++17 -O2 -Wall -Wextra -Wshadow -DLOCAL main.cpp
+```
 
-仓库的 `scripts/random_check.py` 已对复杂 01 线段树、主席树和 2-SAT 做固定种子随机对拍。
+出现运行时错误时再用：
 
-## 交题前 30 秒检查表
+```bash
+g++ -std=c++17 -O1 -g -fsanitize=address,undefined -fno-omit-frame-pointer main.cpp
+```
 
-- 数组是否开到 `n+5`、`4n` 或 `n log n`？多测是否清空？
-- 输入是 0 下标还是 1 下标？区间是闭区间还是半开区间？
-- 答案、距离、区间和与乘法中间量会不会溢出？
-- 取模减法是否变成负数？逆元前提是否成立？
-- 图是有向还是无向？是否有负边、重边、自环、断图？
-- 二分无解时返回什么？`check` 的真假方向是否一致？
-- 输出格式、精度、换行是否符合题意？
+Sanitizer 版只用于本地调试，不要提交到评测机。
 
-## 赛场建议
+## 17. 随机对拍最小闭环
 
-- 签到题优先使用 STL 和短函数，不要为了套模板写更重的数据结构。
-- 铜牌模板要练到不看代码也能说出状态含义与复杂度。
-- 银牌题先写不变量、懒标记复合或 DP 状态，再开始敲代码。
-- 模板通过样例不代表建模正确：先检查题目是否满足模板前提。
+1. 写只能跑小数据的暴力解。
+2. 固定随机种子生成边界与随机数据。
+3. 同一输入分别运行暴力和正解。
+4. 发现不同就完整保存输入并停止。
+5. 先把失败数据加入回归，再修改正解。
+
+本仓库的 [random_check.py](../scripts/random_check.py) 已覆盖复杂 01 线段树、主席树、2-SAT、SOS DP、带权并查集和后缀数组。
+
+## 18. 提交前 30 秒
+
+- 数组是 `n+5`、`4n` 还是 `n log n`？多测清空了吗？
+- 输入是 0 下标还是 1 下标？闭区间还是半开区间？
+- 答案、距离、区间和、乘法中间量会溢出吗？
+- 取模减法是否为负？逆元前提成立吗？
+- 图是有向还是无向？有负边、重边、自环、断图吗？
+- 二分无解返回什么？`check` 的方向一致吗？
+- 构造题是否逐条验证了输出限制？
+- 输出格式、精度、空格和换行符合题意吗？

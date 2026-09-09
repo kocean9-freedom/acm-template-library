@@ -10,9 +10,31 @@ from urllib.parse import unquote
 root = Path(__file__).resolve().parents[1]
 bad = []
 pattern = re.compile(r"\[[^]]*\]\(([^)]+)\)")
+inline_code = re.compile(r"(`+).*?\1")
+
+
+def without_code(text: str) -> str:
+    """移除围栏和行内代码，避免把 C++ 的 `[](...)` 当成链接。"""
+    kept = []
+    fence = None
+    for line in text.splitlines():
+        stripped = line.lstrip()
+        if fence is not None:
+            if stripped.startswith(fence):
+                fence = None
+            continue
+        if stripped.startswith("```"):
+            fence = "```"
+            continue
+        if stripped.startswith("~~~"):
+            fence = "~~~"
+            continue
+        kept.append(inline_code.sub("", line))
+    return "\n".join(kept)
 
 for md in root.rglob("*.md"):
-    for target in pattern.findall(md.read_text(encoding="utf-8")):
+    text = without_code(md.read_text(encoding="utf-8"))
+    for target in pattern.findall(text):
         target = target.strip().split("#", 1)[0]
         if not target or "://" in target or target.startswith("mailto:"):
             continue

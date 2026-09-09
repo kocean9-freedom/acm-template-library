@@ -1,87 +1,126 @@
-# ACM Template Library
+# ACM / ICPC 分层模板与冲银训练库
 
-按 **签到稳定 → 铜牌必会 → 银牌突破** 分层的 GNU C++17 模板库。代码采用全局数组、1 下标、短函数名的 ACM 现场风格；每个 `.cpp` 都能独立编译。
+一套面向大学 ACM 队的 GNU C++17 个人板：从**签到稳定**、**铜牌必会**到**银牌突破**，同时给出题面识别信号、核心不变量、易错点、例题、训练路线和 2024–2025 ICPC/CCPC 铜银题复盘。
 
-> 分层是训练口径，不是任何比赛的官方题目标签。题目的包装、数据范围和算法组合会改变实际难度。
+当前包含 **61 个可独立编译的程序**。代码保留全局数组、1 下标、短函数名的赛场风格；文档负责解释，源码负责复制与修改。
 
-## 怎么用
+> “签到 / 铜牌 / 银牌”是训练口径，不是比赛官方给题目的标签。同一个算法会因题面转化、数据范围、证明和实现风险落在不同层级。
 
-1. 先看 [题面信号与使用指南](docs/guide.md)，判断该用哪个算法。
-2. 打开对应源码，先读文件顶部的前提与复杂度，再复制到题目中改输入输出。
-3. 复杂数据结构不要背整份代码，重点记住“维护什么信息、如何合并、懒标记如何复合”。
-4. 赛前运行 `bash scripts/check.sh`；GNU 编译器可通过 `CXX=g++-15 bash scripts/check.sh` 指定。
+## 第一次打开，按你的目标走
 
-常用函数、整数边界、STL 速查和交题检查表见 [小技巧与快捷函数](docs/tricks.md)。
+| 你的状态 | 现在打开 | 怎么用 |
+|---|---|---|
+| 刚开始打 ACM | [12 周学习路线](docs/roadmap.md) | 按周学，不追求模板数量；每周必须通过验收题 |
+| 比赛中想快速找板 | [题面信号 → 算法地图](docs/algorithm-map.md) | 先看前提，再复制代码；不要只凭关键词硬套 |
+| 算法会但经常 WA | [使用指南](docs/guide.md) · [小技巧](docs/tricks.md) | 检查状态语义、边界、溢出和懒标记复合 |
+| 三人队冲区域赛银牌 | [五小时协作流程](docs/team-workflow.md) | 建立稳定题包、开题止损线和对拍分工 |
+| 想按近年真题补短板 | [2024–2025 铜银题复盘](contest-reviews/README.md) | 先做铜牌包，再从银牌公共骨架选一条突破线 |
+| 想找某算法例题 | [分层例题索引](docs/problem-index.md) | 模板题 → 变式题 → 区域赛实战 |
 
-## 00 · 基础骨架
+## 不再只按“难度”背板
 
-| 模板 | 用途 |
+每个算法还有一层记忆优先级：
+
+- **A · 必须背**：高频、短、跨题迁移强。没有模板也能在 10–20 分钟写出。
+- **B · 熟练改**：理解接口与不变量，现场从个人板复制后可靠改题。
+- **C · 知道去哪找**：低频、长或风险高。按队伍专长准备，不要求三个人都背。
+
+最重要的原则是：**签到靠题意与实现，铜牌靠标准模型和低罚时，银牌靠转化、不变量与选择正确的第 k+1 题。**
+
+## 目录与覆盖
+
+### 00 · 基础骨架（2）
+
+- [竞赛骨架](00-basic/base.cpp)：I/O、多测、常用类型与无穷大。
+- [整数与模运算](00-basic/math_utils.cpp)：gcd/lcm、快速幂、exgcd、逆元、正模。
+
+### 01 · 签到稳定（9）
+
+枚举与模拟、排序贪心、前缀和/差分、双指针、二分答案、离散化、网格 BFS、基础 DP、0/1 背包与 LIS。
+
+[浏览签到目录](01-signin/) · 目标：读懂后 10–20 分钟一次通过，而不是“最后能 AC”。
+
+### 02 · 铜牌必会（25）
+
+| 专题 | 模板 |
 |---|---|
-| [base.cpp](00-basic/base.cpp) | 单/多测骨架、常用类型和无穷大 |
-| [math_utils.cpp](00-basic/math_utils.cpp) | 快速幂、gcd/lcm、exgcd、逆元、正模 |
+| 数据结构 | DSU、Fenwick、懒线段树、ST 表、单调队列、单调栈 |
+| 图论 | Dijkstra、0-1 BFS、Bellman-Ford、Floyd、Kruskal、拓扑、欧拉路、桥/割点、二分图匹配 |
+| 树 | LCA、直径、树形 DP |
+| DP | 状压 DP、区间 DP、矩阵快速幂 |
+| 字符串 | KMP/Z、Trie、双模滚动哈希 |
+| 数学 | 线性筛、组合数 |
 
-## 01 · 签到稳定
+[浏览铜牌目录](02-bronze/) · 目标：看到标准模型后 15–25 分钟完成，复杂度和边界不用临场猜。
 
-| 模板 | 看到这些信号就考虑 |
+### 03 · 银牌突破（25）
+
+| 专题 | 模板 |
 |---|---|
-| [prefix_difference.cpp](01-signin/prefix_difference.cpp) | 静态区间和；多次区间修改、最后统一输出 |
-| [two_pointers.cpp](01-signin/two_pointers.cpp) | 连续区间、非负/单调、最长或最短 |
-| [binary_search.cpp](01-signin/binary_search.cpp) | 有序数组边界；答案具有单调可行性 |
-| [discretization.cpp](01-signin/discretization.cpp) | 值域大，但只关心相对大小/相等关系 |
-| [bfs_grid.cpp](01-signin/bfs_grid.cpp) | 无权图或网格最少步数 |
-| [knapsack_lis.cpp](01-signin/knapsack_lis.cpp) | 0/1 选择；最长递增子序列 |
+| 复杂数据结构 | 01 复合懒标记线段树、HLD、主席树、莫队、带权/可撤销 DSU、Li Chao 树 |
+| 树与位运算 | DSU on tree、换根 DP、线性基、SOS DP |
+| 连通性与约束 | SCC、2-SAT、差分约束、Hopcroft-Karp |
+| 网络流 | Dinic、最小费用最大流 |
+| 字符串 | AC 自动机、Manacher、后缀数组 |
+| 数学与几何 | 数位 DP、广义 CRT、高斯消元、二维整数几何、Andrew 凸包 |
 
-## 02 · 铜牌必会
+[浏览银牌目录](03-silver/) · 目标：复制前能口述状态/节点含义、合并式、正确性依据和复杂度。
 
-| 方向 | 模板 |
-|---|---|
-| 数据结构 | [并查集](02-bronze/dsu.cpp) · [树状数组](02-bronze/fenwick.cpp) · [懒标记线段树](02-bronze/segment_tree_lazy.cpp) · [ST 表](02-bronze/sparse_table.cpp) · [单调队列](02-bronze/monotonic_queue.cpp) |
-| 图论 | [Dijkstra](02-bronze/dijkstra.cpp) · [0-1 BFS](02-bronze/zero_one_bfs.cpp) · [Floyd](02-bronze/floyd.cpp) · [Kruskal](02-bronze/mst_kruskal.cpp) · [拓扑排序](02-bronze/toposort.cpp) · [二分图匹配](02-bronze/bipartite_matching.cpp) |
-| 树 | [倍增 LCA](02-bronze/lca.cpp) · [树的直径](02-bronze/tree_diameter.cpp) |
-| 字符串 | [KMP 与 Z 函数](02-bronze/kmp_z.cpp) · [Trie](02-bronze/trie.cpp) |
-| 数学 | [线性筛与组合数](02-bronze/sieve_comb.cpp) |
+完整到文件级的入口见 [算法地图](docs/algorithm-map.md)。
 
-## 03 · 银牌突破
+## 为什么这版比普通“算法大全”更适合训练
 
-| 方向 | 模板 |
-|---|---|
-| 数据结构 | [01 序列复杂线段树](03-silver/binary_sequence_segment_tree.cpp) · [树链剖分](03-silver/heavy_light_decomposition.cpp) · [主席树](03-silver/persistent_segment_tree.cpp) · [莫队](03-silver/mo_algorithm.cpp) · [线性基](03-silver/linear_basis.cpp) |
-| 图论 | [SCC 缩点](03-silver/scc.cpp) · [2-SAT](03-silver/two_sat.cpp) · [Dinic 最大流](03-silver/dinic.cpp) · [最小费用最大流](03-silver/min_cost_flow.cpp) |
-| 字符串 | [AC 自动机](03-silver/ac_automaton.cpp) · [Manacher](03-silver/manacher.cpp) |
-| DP / 几何 | [数位 DP](03-silver/digit_dp.cpp) · [Andrew 凸包](03-silver/convex_hull.cpp) |
+本版对照了 [KACTL](https://github.com/kth-competitive-programming/kactl)、[AtCoder Library](https://github.com/atcoder/ac-library)、[Library Checker](https://github.com/yosupo06/library-checker-problems)、[ecnerwala/cp-book](https://github.com/ecnerwala/cp-book)、[OI Wiki](https://oi-wiki.org/)、[cp-algorithms](https://cp-algorithms.com/) 等资料，但没有拼接外部代码。
 
-## 推荐学习顺序
+融合后的规则是：
 
-- **先稳签到**：前缀和/差分 → 二分 → 双指针 → BFS → 基础 DP。
-- **再稳铜牌**：并查集 → 树状数组 → 线段树 → 最短路/MST → LCA → KMP。
-- **冲银主线**：复杂线段树 → SCC/2-SAT → 网络流 → 树链剖分/主席树 → AC 自动机。
-- **按需补充**：莫队、线性基、数位 DP、凸包。这四类很有用，但更依赖题型识别。
+1. 像 KACTL 一样控制长度，模板必须短、可改、用途明确。
+2. 像 ACL 一样把输入约束与行为边界写清楚。
+3. 像 Library Checker 和现代代码库一样重视编译、样例和随机对拍。
+4. 用 OI Wiki / cp-algorithms 补足证明与前提。
+5. 用 2024–2025 ICPC/CCPC 铜银题数据决定优先级，避免目录很全却与当前冲牌脱节。
 
-## 为什么没有把 WIDA / OI Wiki 全搬进来
+完整来源职责、许可边界和取舍见 [资料来源](docs/sources.md)。
 
-WIDA 打印版和 [OI Wiki](https://oi-wiki.org/) 都是很好的完整知识库，但完整目录包含 Min25、Pollard-Rho、多项式全家桶、一般图匹配、LCT、后缀自动机、三维几何等内容。对“区域赛签到到银牌尾部”而言，过大的板子会提高记忆和检索成本。
+## 2024–2025 区域赛训练图谱
 
-首版的筛选标准是：区域赛出现频率、能否跨题迁移、现场实现风险、板子长度和是否有清晰的识别信号。更高阶算法列在指南末尾，达到稳定银牌后再按队伍短板扩展。
+仓库同时收录两份中文 PDF：
 
-## 验证
+- **2024**：11 场 ICPC/CCPC 区域赛，67 道铜银/桥接题，26 道核心思路同构训练题。
+- **2025**：11 场 ICPC/CCPC 区域赛，63 道不重复铜银题，18 道核心思路同构训练题。
 
-- 所有源码使用 `-std=c++17 -O2 -Wall -Wextra` 严格编译。
-- 复杂 01 线段树、主席树、2-SAT 使用固定随机种子做小数据对拍。
-- 关键模板运行确定性样例，全部 Markdown 相对链接检查存在性。
-- 一键执行：`bash scripts/check.sh`。
+它们不是把题按大标签堆起来，而是按正式队榜单还原铜牌稳定包、银牌第 k+1 题和同构训练路径。入口与使用方法见 [contest-reviews/README.md](contest-reviews/README.md)。
 
-## 资料来源与取舍
+## 一套可执行的使用方法
 
-清单参考用户提供的 WIDA 算法模板打印版与 [OI Wiki](https://oi-wiki.org/)，但代码和说明均重新整理。筛选优先级是：区域赛出现频率、跨题迁移性、现场实现风险和板子长度；完整筛选理由见 [使用指南](docs/guide.md#暂不进入首版的内容)。
-- 关键模板运行确定性样例。
-- 01 序列线段树、主席树和 2-SAT 运行固定随机种子的暴力对拍。
-- Markdown 内部链接由脚本检查。
+学习一个模板时，强制完成四步：
+
+1. 不看代码，说出它解决什么、不能解决什么。
+2. 写出状态或节点含义，以及最关键的转移/合并式。
+3. 独立完成一题模板题，再做一题包装不同的变式题。
+4. 一周后不看板重写；复杂结构再写小暴力随机对拍。
+
+比赛中使用模板时，只问三件事：题目是否满足前提、下标/区间语义是否一致、修改之间如何复合。模板通过样例不代表建模正确。
+
+## 自动验证
 
 ```bash
-bash scripts/check.sh
-python3 scripts/random_check.py build
+# macOS 上系统 g++ 可能实际是 Apple Clang；本机使用 Homebrew GCC 15。
+CXX=g++-15 bash scripts/check.sh
 ```
+
+验证包括：
+
+- 61 个 `.cpp` 以 `-std=c++17 -O2 -Wall -Wextra` 编译。
+- 41 个确定性输入输出检查，覆盖负系数取模等边界。
+- 11 类随机对拍：01 复杂线段树、主席树、2-SAT、SOS DP、带权/可撤销 DSU、后缀数组、Hopcroft–Karp、Li Chao、广义 CRT、换根 DP。
+- Markdown 相对链接检查。
+- GitHub Actions 在每次 push / pull request 重复执行核心检查。
+
+## 下一阶段怎么扩展
+
+稳定银牌前，优先做题而不是继续加板。只有某一类算法在三个月内遇到至少三次，并且队内有人能讲清不变量和验证方法，才把它从 C 级升级到 B 级。候选包括 NTT/FFT、SAM/PAM、点分治、虚树、线段树分治、Miller-Rabin/Pollard-Rho、LCT 和更完整的计算几何。
 
 ## License
 
-[MIT](LICENSE)。示例题目与外部教程版权归各自平台和作者所有；本仓库仅提供原创整理与实现。
+[MIT](LICENSE)。外部题面、教程和链接版权归各平台及作者；两份训练图谱为本项目整理成果。
