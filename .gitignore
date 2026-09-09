@@ -1,0 +1,7 @@
+build/
+.DS_Store
+*.out
+*.exe
+task_plan.md
+notes.md
+docs/superpowers/
